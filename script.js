@@ -2,7 +2,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 // Game state
-let gameState = 'pre-game'; // 'pre-game', 'playing', 'game-over'
+let gameState = 'pre-game'; // 'pre-game', 'playing', 'game-over', 'lose'
 
 // Game objects
 const player = {
@@ -50,9 +50,9 @@ function drawCircle(x, y, radius, color) {
     ctx.fill();
 }
 
-function drawText(text, x, y, color) {
+function drawText(text, x, y, color, size = '30px') {
     ctx.fillStyle = color;
-    ctx.font = '30px Courier New';
+    ctx.font = `${size} 'Courier New'`;
     ctx.fillText(text, x, y);
 }
 
@@ -121,8 +121,12 @@ function update() {
             }
         } else if (ball.y + ball.radius > canvas.height) { // Computer scores
             computerScore++;
-            gameState = 'pre-game';
-            resetBall();
+            if (computerScore >= 5) {
+                gameState = 'lose';
+            } else {
+                gameState = 'pre-game';
+                resetBall();
+            }
         }
 
         // Computer AI
@@ -146,16 +150,32 @@ function draw() {
     // Draw ball
     drawCircle(ball.x, ball.y, ball.radius, ball.color);
 
-    // Draw score and level
-    drawText(`Player: ${playerScore}`, 100, 50, '#fff');
-    drawText(`Computer: ${computerScore}`, canvas.width - 300, 50, '#fff');
-    drawText(`Level: ${level}`, canvas.width / 2 - 50, 50, '#fff');
+    // --- Draw Scores and Level ---
 
+    // Player Score (left-aligned)
+    drawText(`Player: ${playerScore}`, 20, 50, '#fff', '20px');
+
+    // Computer Score (right-aligned)
+    ctx.textAlign = 'right';
+    drawText(`Computer: ${computerScore}`, canvas.width - 20, 50, '#fff', '20px');
+    ctx.textAlign = 'left'; // Reset alignment
+
+    // Level (centered)
+    ctx.textAlign = 'center';
+    drawText(`Level: ${level}`, canvas.width / 2, 50, '#fff', '40px');
+    ctx.textAlign = 'left'; // Reset alignment
+
+
+    // --- Draw Game State Messages ---
+    ctx.textAlign = 'center';
     if (gameState === 'pre-game') {
-        drawText("Press 'a' or 'd' to start", canvas.width / 2 - 200, canvas.height / 2 + 50, '#fff');
+        drawText("Press 'a' or 'd' to start", canvas.width / 2, canvas.height / 2 + 50, '#fff');
     } else if (gameState === 'game-over') {
-        drawText("You Win! Play again? (Y)", canvas.width / 2 - 250, canvas.height / 2 + 50, '#fff');
+        drawText("You Win! Play again? (Y)", canvas.width / 2, canvas.height / 2 + 50, '#fff');
+    } else if (gameState === 'lose') {
+        drawText("Game Over! Play again? (Y)", canvas.width / 2, canvas.height / 2 + 50, '#fff');
     }
+    ctx.textAlign = 'left'; // Reset alignment
 }
 
 // Reset ball and paddles to the center and stop their movement.
@@ -189,7 +209,7 @@ document.addEventListener('keydown', (e) => {
         ball.dx = (key === 'a') ? -5 : 5;
         // Set ball's vertical direction to move towards the player
         ball.dy = 5;
-    } else if (gameState === 'game-over' && key === 'y') {
+    } else if ((gameState === 'game-over' || gameState === 'lose') && key === 'y') {
         restartGame();
         return;
     }
