@@ -131,7 +131,24 @@ function update() {
 
         // Computer AI
         if (ball.dy < 0) {
-            const computerLevelSpeed = 0.05 + (level - 1) * 0.02;
+            // Define the parameters for the curved difficulty
+            const baseSpeed = 0.105;
+            const maxSpeed = 0.125;
+            const exponent = 0.5;
+
+            // Calculate the base speed for the current level using the curve formula
+            let computerLevelSpeed = baseSpeed + Math.pow((level - 1) / 4, exponent) * (maxSpeed - baseSpeed);
+
+            // --- AI Snooze Logic ---
+            // The chance for the AI to "snooze" (react slower) decreases as the level increases.
+            const snoozeChance = 0.8 - (level * 0.06);
+            const snoozeFactor = 0.5; // When snoozing, AI is half as fast.
+
+            if (Math.random() < snoozeChance) {
+                computerLevelSpeed *= snoozeFactor;
+            }
+            // --- End Snooze Logic ---
+
             const computerTargetX = ball.x - computer.width / 2;
             computer.x += (computerTargetX - computer.x) * computerLevelSpeed;
         }

@@ -18,3 +18,16 @@ canvas {
     background-color: #000;
     border: 2px solid #fff;
 }
+
+.tuner-link-container {
+    margin-top: 20px;
+}
+
+.tuner-link-container a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    border: 1px solid #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
